@@ -10,6 +10,7 @@ public interface TagService {
 
     Optional<TagEntity> findByName(String name);
     Set<TagEntity> resolveInputToTags(String tags, Set<TagEntity> existingTagList);
-    List<TagEntity> findTagEntitiesByNameIn(List<String> name);
+    Set<TagEntity> resolveInputToTags(Set<String> tags);
+    Set<TagEntity> findTagEntitiesByNameIn(Set<String> name);
 
 }

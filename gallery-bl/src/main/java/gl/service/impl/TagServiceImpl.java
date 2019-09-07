@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -21,6 +22,22 @@ public class TagServiceImpl implements TagService {
 
 
     public Optional<TagEntity> findByName(String name){ return repository.findByName(name); }
+
+    public Set<TagEntity> resolveInputToTags(Set<String> tags) {
+
+        Set<TagEntity> tagsSet = findTagEntitiesByNameIn(tags);
+        Set<String> existingTagNames = tagsSet.stream().map( t -> t.getName()).collect(Collectors.toSet());
+        for (String tag : tags) {
+            String name = tag.trim().toLowerCase();
+            if (!existingTagNames.contains(tag)){
+                TagEntity newTag = new TagEntity();
+                newTag.setCreatedDate(new Date());
+                newTag.setName(name);
+                tagsSet.add(newTag);
+            }
+        }
+        return tagsSet;
+    }
 
     public Set<TagEntity> resolveInputToTags(String tags, Set<TagEntity> existingTagList) {
 
@@ -40,7 +57,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagEntity> findTagEntitiesByNameIn(List<String> names) {
+    public Set<TagEntity> findTagEntitiesByNameIn(Set<String> names) {
         return repository.findTagEntitiesByNameIn(names);
     }
 

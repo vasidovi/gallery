@@ -83,6 +83,8 @@ public class ImageServiceImpl implements ImageService {
         return imageDTO;
     }
 
+
+
     public ImageDTO updateImage(ImageUploadDTO imageUploadDTO, Long id) {
 
         Optional<ImageEntity> imageDAOOptional = repository.findById(id);
@@ -98,6 +100,32 @@ public class ImageServiceImpl implements ImageService {
         return null;
     }
 
+    private ImageEntity _updateImageMetadata(ImageUploadEntity imageUploadEntity, ImageEntity imageEntity) {
+
+        String name = imageUploadEntity.getName();
+        if (name != null && !name.isEmpty()) {
+            imageEntity.setName(name);
+        }
+
+        Set<String> catalogs = imageUploadEntity.getCatalogs();
+        if (catalogs != null && !catalogs.isEmpty()) {
+            imageEntity.setCatalogs(catalogService.findAllByNames(catalogs));
+        }
+
+        Set<String> tags = imageUploadEntity.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            imageEntity.setTags(tagService.resolveInputToTags(tags));
+        }
+
+        String description = imageUploadEntity.getDescription();
+        if (description != null && !description.isEmpty()) {
+            imageEntity.setDescription(description);
+        }
+
+        return imageEntity;
+    }
+
+    // older version still needed for image update
     private ImageEntity _updateImageMetadata(ImageUploadDTO imageUploadDTO, ImageEntity imageEntity) {
 
         String name = imageUploadDTO.getName();
@@ -123,7 +151,36 @@ public class ImageServiceImpl implements ImageService {
         return imageEntity;
     }
 
-    public ImageEntity uploadImage(ImageUploadDTO imageUploadDTO) {
+    @Override
+    public ImageEntity uploadImage(ImageUploadEntity imageUploadEntity) {
+
+        try {
+            ImageEntity image = new ImageEntity(
+                    imageUploadEntity.getFile().getBytes(),
+                    imageUploadEntity.getFile().getContentType()
+            );
+            image.setDate(new Date());
+            image.setCreationDateTime(new Date());
+
+            image = _updateImageMetadata(imageUploadEntity, image);
+
+            image.setFile(createImageThumbnail.createThumbnail(image));
+
+            QualityImageFileEntity qualityImageFile = new QualityImageFileEntity();
+            qualityImageFile.setFile(imageUploadEntity.getFile().getBytes());
+            qualityImageFile.setImage(image);
+            qualityImageFileRepository.save(qualityImageFile);
+            
+            return image;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+        public ImageEntity uploadImage(ImageUploadDTO imageUploadDTO) {
 
         try {
             ImageEntity image = new ImageEntity(
@@ -191,10 +248,8 @@ public class ImageServiceImpl implements ImageService {
     image.description like '% image.description %'
 
 */
-
-    @Override
-    public List<ImageEntity> findByMultipleParameters(List<Long> catalogIds,
-                                                      List<String> tags,
+        public List<ImageEntity> findByMultipleParameters(List<Long> catalogIds,
+                                                      Set<String> tags,
                                                       String search) {
 
         Session session = entityManager.unwrap(Session.class);

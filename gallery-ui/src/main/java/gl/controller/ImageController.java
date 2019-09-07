@@ -51,23 +51,30 @@ public class ImageController {
     @GetMapping("/images/find")
     public List<ImageEntity> findByMultipleParameters(
             @RequestParam List<Long> catalogIds,
-            @RequestParam List<String> tags,
+            @RequestParam Set<String> tags,
             @RequestParam String search
     ) {
         return imageService.findByMultipleParameters(catalogIds, tags, search);
     }
 
-    @PostMapping(value = "/upload")
-    public ResponseEntity<?> upload(
-            @ModelAttribute ImageUploadDTO imageUploadDTO) {
+//    @PostMapping(value = "/upload")
+//    public ResponseEntity<?> upload(
+//            @ModelAttribute ImageUploadDTO imageUploadDTO) {
+//
+//        ImageEntity image = imageService.uploadImage(imageUploadDTO);
+//        if (image == null) {
+//            return ResponseEntity.badRequest().body("Failed to read file");
+//        } else {
+//            return ResponseEntity.ok()
+//                    .body(image);
+//        }
+//    }
 
-        ImageEntity image = imageService.uploadImage(imageUploadDTO);
-        if (image == null) {
-            return ResponseEntity.badRequest().body("Failed to read file");
-        } else {
-            return ResponseEntity.ok()
-                    .body(image);
-        }
+    @PostMapping(value = "/upload")
+    public ImageEntity upload(
+            @ModelAttribute ImageUploadEntity imageUploadEntity) {
+        ImageEntity image = imageService.uploadImage(imageUploadEntity);
+        return image;
     }
 
     @PreAuthorize("hasRole('ADMIN')")

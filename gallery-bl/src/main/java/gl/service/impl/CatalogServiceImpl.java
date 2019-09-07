@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CatalogServiceImpl implements CatalogService {
@@ -23,10 +24,15 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public CatalogEntity findById(Long id) {
         Optional<CatalogEntity> catalogDAOOptional = catalogRepository.findById(id);
-        if(catalogDAOOptional.isPresent()){
+        if (catalogDAOOptional.isPresent()) {
             return catalogDAOOptional.get();
         } else {
             return null;
         }
+    }
+
+    @Override
+    public Set<CatalogEntity> findAllByNames(Set<String> names) {
+        return catalogRepository.findByNameIn(names);
     }
 }
