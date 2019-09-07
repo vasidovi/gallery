@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+        <style type="text/css">
+            div{
+                height: fit-content;
+            }
+
+        </style>
+</head>
+
+<body>
+
+<a href="/">
+    <button>Go back</button>
+</a>
+<div class="image-container">
+ <img th:src="${view.file}"/>
+</div>
+<div>
+    <p th:text="${view.description}"/>
+    <p th:text="${view.date}"/>
+
+    <form th:action="@{/image/{id}/delete(id=${view.id})}" method="DELETE">
+        <input type="submit" value="Delete" />
+    </form>
+</div>
+
+<div class = "save-form">
+    <form method="POST" action="/update" enctype="multipart/form-data">
+        <p class="title">image update form</p>
+        <input type="number" name="id"  th:value=${view.id} visibility="hidden"/>
+
+        <div>
+            <label for="textarea" >Description</label>
+            <textarea class="form-control" id="textarea" rows="3"  name="description" th:text="${view.description}"/></textarea>
+        </div>
+
+        <input type="submit" value="Submit" />
+    </form>
+</div>
+
+<hr>
+<p>Tags form (add tags separated by commas)</p>
+<div class = "tag-form">
+    <form th:action="@{/image/{id}/addTags(id=${view.id})}" method="POST" enctype="multipart/form-data">
+        <input type="text" name="tag"/>
+        <input type="submit" value="new tags" />
+    </form>
+</div>
+
+
+<p class="title">Tags</p>
+<div>
+    <ul>
+        <li th:each="tag : ${view.tags}">
+                <img th:text="${tag}"/>
+            <form  th:action="@{/image/{id}/delete/{tag}(id=${view.id}, tag=${tag})}" method="POST" enctype="multipart/form-data">
+                <input type="submit" value="X" />
+            </form>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>
