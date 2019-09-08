@@ -2,10 +2,8 @@ package gl.service.impl;
 
 
 import gl.model.*;
-import gl.model.entity.CatalogEntity;
 import gl.model.entity.ImageEntity;
 import gl.model.entity.QualityImageFileEntity;
-import gl.model.entity.TagEntity;
 import gl.repository.ImageRepository;
 import gl.repository.QualityImageFileRepository;
 import gl.service.CatalogService;
@@ -50,52 +48,16 @@ public class ImageServiceImpl implements ImageService {
         return repository.findAll();
     }
 
-    private String _imageModelToString(ImageEntity image) {
-        return "data:" +
-                image.getImageFormat() +
-                ";base64," +
-                Base64.getEncoder().encodeToString(image.getFile());
-    }
 
-    private ImageDTO _mapImageDAOToImageDTO(ImageEntity imageEntity) {
-        ImageDTO imageDTO = new ImageDTO();
-        imageDTO.setId(imageEntity.getId());
-        imageDTO.setFile(_imageModelToString(imageEntity));
-        imageDTO.setDate(imageEntity.getDate());
-        imageDTO.setDescription(imageEntity.getDescription());
-        imageDTO.setName(imageEntity.getName());
-
-        Set<String> DTOTags = new HashSet<>();
-
-        for (TagEntity tag : imageEntity.getTags()) {
-            DTOTags.add(tag.getName());
-        }
-
-        Set<String> DTOCatalogs = new HashSet<>();
-
-        for (CatalogEntity catalog : imageEntity.getCatalogs()) {
-            DTOTags.add(catalog.getName());
-        }
-
-        imageDTO.setCatalogs(DTOCatalogs);
-        imageDTO.setTags(DTOTags);
-
-        return imageDTO;
-    }
-
-
-
-    public ImageDTO updateImage(ImageUploadDTO imageUploadDTO, Long id) {
+    public ImageEntity updateImage(ImageUploadEntity imageUploadEntity, Long id) {
 
         Optional<ImageEntity> imageDAOOptional = repository.findById(id);
 
         if (imageDAOOptional.isPresent()) {
             ImageEntity image = imageDAOOptional.get();
-            image = _updateImageMetadata(imageUploadDTO, image);
+            image = _updateImageMetadata(imageUploadEntity, image);
             repository.save(image);
-
-            return _mapImageDAOToImageDTO(image);
-
+            return image;
         }
         return null;
     }
@@ -103,50 +65,18 @@ public class ImageServiceImpl implements ImageService {
     private ImageEntity _updateImageMetadata(ImageUploadEntity imageUploadEntity, ImageEntity imageEntity) {
 
         String name = imageUploadEntity.getName();
-        if (name != null && !name.isEmpty()) {
-            imageEntity.setName(name);
-        }
-
-        Set<String> catalogs = imageUploadEntity.getCatalogs();
-        if (catalogs != null && !catalogs.isEmpty()) {
-            imageEntity.setCatalogs(catalogService.findAllByNames(catalogs));
-        }
-
-        Set<String> tags = imageUploadEntity.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            imageEntity.setTags(tagService.resolveInputToTags(tags));
-        }
+        imageEntity.setName(name);
 
         String description = imageUploadEntity.getDescription();
-        if (description != null && !description.isEmpty()) {
-            imageEntity.setDescription(description);
-        }
+        imageEntity.setDescription(description);
 
-        return imageEntity;
-    }
+        Set<String> catalogs = imageUploadEntity.getCatalogs();
+        imageEntity.setCatalogs(catalogService.findAllByNames(catalogs));
 
-    // older version still needed for image update
-    private ImageEntity _updateImageMetadata(ImageUploadDTO imageUploadDTO, ImageEntity imageEntity) {
+        Set<String> tags = imageUploadEntity.getTags();
+        imageEntity.setTags(tagService.resolveInputToTags(tags));
 
-        String name = imageUploadDTO.getName();
-        if (name != null && !name.isEmpty()) {
-            imageEntity.setName(name);
-        }
 
-        String catalogs = imageUploadDTO.getCatalogs();
-        if (catalogs != null && !catalogs.isEmpty()) {
-            // parse catalogs ?? how are we choosing catalogs
-            // should not be able to create catalog that easily
-        }
-        String tags = imageUploadDTO.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            imageEntity.setTags(tagService.resolveInputToTags(tags, imageEntity.getTags()));
-        }
-
-        String description = imageUploadDTO.getDescription();
-        if (description != null && !description.isEmpty()) {
-            imageEntity.setDescription(description);
-        }
 
         return imageEntity;
     }
@@ -170,36 +100,8 @@ public class ImageServiceImpl implements ImageService {
             qualityImageFile.setFile(imageUploadEntity.getFile().getBytes());
             qualityImageFile.setImage(image);
             qualityImageFileRepository.save(qualityImageFile);
-            
+
             return image;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-        public ImageEntity uploadImage(ImageUploadDTO imageUploadDTO) {
-
-        try {
-            ImageEntity image = new ImageEntity(
-                    imageUploadDTO.getFile().getBytes(),
-                    imageUploadDTO.getFile().getContentType()
-            );
-            image.setDate(new Date());
-            image.setCreationDateTime(new Date());
-
-            image = _updateImageMetadata(imageUploadDTO, image);
-            image.setFile(createImageThumbnail.createThumbnail(image));
-
-            QualityImageFileEntity qualityImageFile = new QualityImageFileEntity();
-            qualityImageFile.setFile(imageUploadDTO.getFile().getBytes());
-            qualityImageFile.setImage(image);
-
-            qualityImageFileRepository.save(qualityImageFile);
-
-            return null;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -307,42 +209,20 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    @Override
+    public ImageEntity findByImageId(Long id) {
+
+        Optional<ImageEntity> image = repository.findById(id);
+
+        if (image.isPresent()) {
+            return image.get();
+        } else {
+            return null;
+        }
+    }
+
     public void deleteById(Long id) {
         repository.deleteById(id);
     }
 
 }
-
-//  Deprecated methods
-
-//    @Override
-//    public List<ImageDTO> returnThumbnailsByCatalogs(CatalogEntity catalogs) {
-//        List<ImageEntity> images = repository.findAllByCatalogs(catalogs);
-//        List<ImageDTO> imageDTOS = new ArrayList<>();
-//        for (ImageEntity imageEntity : images){
-//            try {
-//                imageEntity.setFile(createImageThumbnail.createThumbnail(imageEntity).getFile());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            ImageDTO imageDTO = _mapImageDAOToImageDTO(imageEntity);
-//            imageDTOS.add(imageDTO);
-//        }
-//        return imageDTOS;
-//    }
-
-//    public ImageDTO uploadFile(MultipartFile file) {
-//        try {
-//            ImageEntity image = new ImageEntity(
-//                    file.getBytes(),
-//                    file.getContentType()
-//            );
-//            repository.save(image);
-//            createImageThumbnail.createThumbnail(image);
-//            return _mapImageDAOToImageDTO(image);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }

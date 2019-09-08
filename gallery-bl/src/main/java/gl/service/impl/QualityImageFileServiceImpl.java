@@ -14,9 +14,9 @@ import java.util.Optional;
 public class QualityImageFileServiceImpl implements QualityImageFileService {
 
     @Autowired
-    private QualityImageFileRepository repository;
-    @Autowired
     ImageRepository imageRepository;
+    @Autowired
+    private QualityImageFileRepository repository;
 
     @Override
     public QualityImageFileEntity findByImageId(Long id) {
@@ -35,4 +35,21 @@ public class QualityImageFileServiceImpl implements QualityImageFileService {
             return null;
         }
     }
+
+    @Override
+    public ImageEntity deleteByImageId(Long id) {
+
+        // quick and dirty todo to rewrite with criteria ? Jpql ignores me
+        Optional<ImageEntity> image = imageRepository.findById(id);
+
+        if (image.isPresent()) {
+
+            repository.delete( repository.findByImage(image.get()).get());
+            return image.get();
+        } else {
+            return null;
+        }
+    }
+
+
 }
