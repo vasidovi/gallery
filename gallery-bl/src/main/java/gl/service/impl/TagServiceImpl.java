@@ -22,7 +22,6 @@ public class TagServiceImpl implements TagService {
 
     public Set<TagEntity> resolveInputToTags(Set<String> tags) {
 
-
         Set<TagEntity> updatedTagSet = findTagEntitiesByNameIn(tags);
         Set<String> existingTagNames = updatedTagSet.stream().map( t -> t.getName()).collect(Collectors.toSet());
 
@@ -39,26 +38,8 @@ public class TagServiceImpl implements TagService {
         return updatedTagSet;
     }
 
-    public Set<TagEntity> resolveInputToTags(String tags, Set<TagEntity> existingTagList) {
-
-        Set<TagEntity> tagSet = existingTagList;
-        String[] tagsArray = tags.split(",");
-        for (String tag : tagsArray) {
-            String name = tag.trim().toLowerCase();
-            Optional<TagEntity> tagOptional = findByName(name);
-            if (!tagOptional.isPresent()) {
-                TagEntity newTag = new TagEntity();
-                newTag.setCreatedDate(new Date());
-                newTag.setName(name);
-                tagSet.add(newTag);
-            }
-        }
-        return tagSet;
-    }
-
     @Override
     public Set<TagEntity> findTagEntitiesByNameIn(Set<String> names) {
         return repository.findTagEntitiesByNameIn(names);
     }
-
 }

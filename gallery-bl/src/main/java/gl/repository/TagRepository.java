@@ -19,5 +19,4 @@ public interface TagRepository extends JpaRepository<TagEntity, Long> {
 
     @Query("Select t from TagEntity t where t.name in :names")
     Set<TagEntity> findTagEntitiesByNameIn(Set<String> names);
-
 }

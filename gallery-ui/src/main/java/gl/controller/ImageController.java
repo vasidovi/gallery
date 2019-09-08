@@ -87,7 +87,7 @@ public class ImageController {
     @DeleteMapping("/image/{id}")
     public ResponseEntity<?>  deleteImage(@PathVariable Long id) {
         System.out.println("Delete about to start");
-        qualityImageFileService.deleteByImageId(id);
+        imageService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 

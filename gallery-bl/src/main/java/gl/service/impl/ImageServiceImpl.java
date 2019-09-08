@@ -2,8 +2,10 @@ package gl.service.impl;
 
 
 import gl.model.*;
+import gl.model.entity.CatalogEntity;
 import gl.model.entity.ImageEntity;
 import gl.model.entity.QualityImageFileEntity;
+import gl.model.entity.TagEntity;
 import gl.repository.ImageRepository;
 import gl.repository.QualityImageFileRepository;
 import gl.service.CatalogService;
@@ -16,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.*;
 import java.io.IOException;
+import java.rmi.ServerError;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +43,7 @@ public class ImageServiceImpl implements ImageService {
     public List<ImageEntity> getImagesByCatalogId(Long id) {
 
         if (catalogService.findById(id) != null) {
-            return repository.findByCatalogIdNative(id);
+            return repository.findByCatalogId(id);
         }
         return null;
     }
@@ -75,8 +79,6 @@ public class ImageServiceImpl implements ImageService {
 
         Set<String> tags = imageUploadEntity.getTags();
         imageEntity.setTags(tagService.resolveInputToTags(tags));
-
-
 
         return imageEntity;
     }
@@ -114,7 +116,7 @@ public class ImageServiceImpl implements ImageService {
         Session session = entityManager.unwrap(Session.class);
         StringBuilder sb = new StringBuilder();
         sb.append("select distinct img from ImageEntity " +
-                   "as img left outer join img.catalogs as cats where ");
+                "as img left outer join img.catalogs as cats where ");
         for (Long x : ids) {
             sb.append("cats.id=:category" + x + " or ");
 
@@ -129,30 +131,114 @@ public class ImageServiceImpl implements ImageService {
         return images;
     }
 
-/*  Filter in native
+    /*  Filter in native
 
-    select distinct image.* from image
-    left outer join
-    image_catalog as img_cat on img_cat.image_id  = image.id
-    left outer join
-    image_tag as img_tag on img_tag.image_id = image.id
-    left outer join
-    tag on tag.id = img_tag.tag_id
+        select distinct image.* from image
+        left outer join
+        image_catalog as img_cat on img_cat.image_id  = image.id
+        left outer join
+        image_tag as img_tag on img_tag.image_id = image.id
+        left outer join
+        tag on tag.id = img_tag.tag_id
 
-    !!! only if catalog id list length > 0
-    where catalog.id in ( ..,.. )
-    and
-    !!! only  if tag.name list length > 0
-    tag.name in (..,..)
-    and
-    image.name like '% image.name %'
-    and
-    image.description like '% image.description %'
+        !!! only if catalog id list length > 0
+        where catalog.id in ( ..,.. )
+        and
+        !!! only  if tag.name list length > 0
+        tag.name in (..,..)
+        and
+        image.name like '% image.name %'
+        and
+        image.description like '% image.description %'
 
-*/
-        public List<ImageEntity> findByMultipleParameters(List<Long> catalogIds,
-                                                      Set<String> tags,
+    */
+    public List<ImageEntity> findByMultipleParameters(List<Long> catalogIds,
+                                                      Set<String> tagSet,
                                                       String search) {
+
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ImageEntity> criteriaQuery = criteriaBuilder.createQuery(ImageEntity.class);
+        Root<ImageEntity> image = criteriaQuery.from(ImageEntity.class);
+
+        Join<ImageEntity, CatalogEntity> catalogs = image.join("catalogs", JoinType.LEFT);
+        Join<ImageEntity, TagEntity> tags = image.join("tags", JoinType.LEFT);
+
+        criteriaQuery.select(image).distinct(true);
+
+        Predicate finalPredicate = null;
+        Predicate catalogPredicate = null;
+        Predicate tagsPredicate = null;
+        Predicate searchPredicate = null;
+
+        if (catalogIds.size() > 0) {
+            catalogPredicate = criteriaBuilder.equal(catalogs.get("id"), catalogIds.get(0));
+            if (catalogIds.size() > 1) {
+                for (int i = 1; i < catalogIds.size(); i++) {
+                    Predicate currentPredicate = criteriaBuilder.equal(catalogs.get("id"), catalogIds.get(i));
+                    catalogPredicate = criteriaBuilder.or(catalogPredicate, currentPredicate);
+                }
+            }
+        }
+
+        if (tagSet.size() > 0) {
+            List<String> tagsList = new ArrayList<>(tagSet);
+            tagsPredicate = criteriaBuilder.equal(tags.get("name"), tagsList.get(0));
+            if (tagsList.size() > 1) {
+                for (int i = 1; i < tagsList.size(); i++) {
+                    Predicate currentPredicate = criteriaBuilder.equal(tags.get("name"), tagsList.get(i));
+                    tagsPredicate = criteriaBuilder.or(tagsPredicate, currentPredicate);
+                }
+            }
+        }
+
+        String searchLowercase = search.trim().toLowerCase();
+
+        if (!searchLowercase.isEmpty()) {
+            Predicate namePredicate = criteriaBuilder.like(image.get("name"), "%" + searchLowercase + "%");
+            Predicate descriptionPredicate = criteriaBuilder.like(image.get("description"), "%" + searchLowercase + "%");
+            searchPredicate = criteriaBuilder.or(namePredicate, descriptionPredicate);
+        }
+
+        if (catalogPredicate != null) {
+            finalPredicate = catalogPredicate;
+        }
+
+        if (tagsPredicate != null) {
+
+            if (finalPredicate != null) {
+                finalPredicate = criteriaBuilder.and(finalPredicate, tagsPredicate);
+            } else {
+                finalPredicate = tagsPredicate;
+            }
+        }
+
+        if (searchPredicate != null) {
+
+            if (finalPredicate != null) {
+                finalPredicate = criteriaBuilder.and(finalPredicate, searchPredicate);
+            } else {
+                finalPredicate = searchPredicate;
+            }
+        }
+
+        if (finalPredicate != null){
+
+            criteriaQuery.where(finalPredicate);
+
+            List<ImageEntity> images = entityManager.createQuery(criteriaQuery).getResultList();
+
+            return images;
+
+        } else {
+            return null;
+        }
+    }
+
+
+    public List<ImageEntity> findByMultipleParameters_working(List<Long> catalogIds,
+                                                              Set<String> tags,
+                                                              String search) {
 
         Session session = entityManager.unwrap(Session.class);
         StringBuilder sb = new StringBuilder();
@@ -163,14 +249,14 @@ public class ImageServiceImpl implements ImageService {
 
         if (tags != null & tags.size() > 0) {
             List<Long> tagIds = tagService.findTagEntitiesByNameIn(tags)
-                    .stream().map( tag -> tag.getId()).collect(Collectors.toList());
-            if (tagIds.size() > 0){
+                    .stream().map(tag -> tag.getId()).collect(Collectors.toList());
+            if (tagIds.size() > 0) {
                 sb.append("t.id in ( ");
-                        for (Long id : tagIds) {
-                            sb.append(id + ", ");
-                        }
-                        sb.delete(sb.length()-2, sb.length()-1);
-                        sb.append(") and ");
+                for (Long id : tagIds) {
+                    sb.append(id + ", ");
+                }
+                sb.delete(sb.length() - 2, sb.length() - 1);
+                sb.append(") and ");
             }
         }
 
@@ -179,7 +265,7 @@ public class ImageServiceImpl implements ImageService {
             for (Long id : catalogIds) {
                 sb.append(id + ", ");
             }
-            sb.delete(sb.length()-2, sb.length()-1);
+            sb.delete(sb.length() - 2, sb.length() - 1);
             sb.append(") and ");
         }
         String searchLowercase = search.trim().toLowerCase();
@@ -191,12 +277,12 @@ public class ImageServiceImpl implements ImageService {
         // at least one condition was met
         if (sb.toString().contains("and")) {
 
-             String queryReady  = sb.substring(0, sb.length() - 5);
-             Query<ImageEntity> query = session.createQuery(queryReady);
+            String queryReady = sb.substring(0, sb.length() - 5);
+            Query<ImageEntity> query = session.createQuery(queryReady);
 
 
-             if (!searchLowercase.isEmpty()) {
-                query.setParameter("name", "%" + searchLowercase+ "%");
+            if (!searchLowercase.isEmpty()) {
+                query.setParameter("name", "%" + searchLowercase + "%");
                 query.setParameter("description", "%" + searchLowercase + "%");
             }
 
@@ -210,6 +296,12 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+
+    }
+
+    @Override
     public ImageEntity findByImageId(Long id) {
 
         Optional<ImageEntity> image = repository.findById(id);
@@ -219,10 +311,6 @@ public class ImageServiceImpl implements ImageService {
         } else {
             return null;
         }
-    }
-
-    public void deleteById(Long id) {
-        repository.deleteById(id);
     }
 
 }

@@ -1,5 +1,6 @@
 package gl.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -16,9 +17,14 @@ public class UserEntity {
     private String username;
     private String password;
 
-    @Transient
-    private String passwordConfirm;
+// will validate in Angular
+//    @Transient
+//    private String passwordConfirm;
 
     @ManyToMany
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<RoleEntity> roles;
 }

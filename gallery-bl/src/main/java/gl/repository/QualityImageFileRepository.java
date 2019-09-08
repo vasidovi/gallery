@@ -9,6 +9,5 @@ import java.util.Optional;
 public interface QualityImageFileRepository  extends JpaRepository<QualityImageFileEntity, Long> {
 
     Optional<QualityImageFileEntity> findByImage(ImageEntity imageEntity);
-
 }
 

@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Service(value = "userService")
 public class UserServiceImpl implements UserDetailsService, UserService {
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -31,17 +31,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = userRepository.findByUsername(username);
-		if(user == null){
+		if (user == null) {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
 		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthority(user));
 	}
 
 	private Set<SimpleGrantedAuthority> getAuthority(UserEntity user) {
-        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 		user.getRoles().forEach(role -> {
 			//authorities.add(new SimpleGrantedAuthority(role.getName()));
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
+			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
 		});
 		return authorities;
 		//return Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -65,17 +65,24 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	@Override
 	//toDo to remake with userDTO
-    public UserEntity save(UserEntity user) {
+	public UserEntity save(UserEntity user) {
 
-		UserEntity newUser = new UserEntity();
-	    newUser.setUsername(user.getUsername());
-	    newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-	    Set<RoleEntity> roles = new HashSet<>();
-	    RoleEntity role = roleService.findByRole("USER");
-	    roles.add(role);
-	    newUser.setRoles(roles);
+		UserEntity foundUser = findOne(user.getUsername());
 
-        return userRepository.save(newUser);
-    }
+		if (foundUser == null) {
 
+			UserEntity newUser = new UserEntity();
+			newUser.setUsername(user.getUsername());
+			newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+			Set<RoleEntity> roles = new HashSet<>();
+
+			RoleEntity role = roleService.findByRole("USER");
+			roles.add(role);
+			newUser.setRoles(roles);
+			return userRepository.save(newUser);
+
+		} else {
+			return null;
+		}
+	}
 }

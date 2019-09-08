@@ -13,8 +13,7 @@ import java.util.List;
 public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
 
     @Query(value = "select image from ImageEntity image join image.catalogs c where c.id = :id")
-    List<ImageEntity> findByCatalogIdNative(@Param("id") Long Id);
-
+    List<ImageEntity> findByCatalogId(@Param("id") Long Id);
 }
 
 

@@ -1,4 +1,4 @@
-package gl.service.impl;//package hello.service;
+package gl.service.impl;
 //
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

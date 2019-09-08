@@ -13,7 +13,12 @@ public class RoleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String role;
+
+
     @ManyToMany(mappedBy = "roles")
+    @Transient
     private Set<UserEntity> users;
+
+
 
 }
