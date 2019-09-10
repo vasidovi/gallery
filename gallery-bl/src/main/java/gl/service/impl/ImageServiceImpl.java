@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.io.IOException;
-import java.rmi.ServerError;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,10 +67,10 @@ public class ImageServiceImpl implements ImageService {
 
     private ImageEntity _updateImageMetadata(ImageUploadEntity imageUploadEntity, ImageEntity imageEntity) {
 
-        String name = imageUploadEntity.getName();
+        String name = imageUploadEntity.getName().trim().toLowerCase();
         imageEntity.setName(name);
 
-        String description = imageUploadEntity.getDescription();
+        String description = imageUploadEntity.getDescription().trim().toLowerCase();
         imageEntity.setDescription(description);
 
         Set<String> catalogs = imageUploadEntity.getCatalogs();
@@ -222,7 +221,7 @@ public class ImageServiceImpl implements ImageService {
             }
         }
 
-        if (finalPredicate != null){
+        if (finalPredicate != null) {
 
             criteriaQuery.where(finalPredicate);
 
@@ -236,9 +235,9 @@ public class ImageServiceImpl implements ImageService {
     }
 
 
-    public List<ImageEntity> findByMultipleParameters_working(List<Long> catalogIds,
-                                                              Set<String> tags,
-                                                              String search) {
+    public List<ImageEntity> findByMultipleParametersOldVersion(List<Long> catalogIds,
+                                                                Set<String> tags,
+                                                                String search) {
 
         Session session = entityManager.unwrap(Session.class);
         StringBuilder sb = new StringBuilder();
@@ -298,7 +297,6 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
-
     }
 
     @Override

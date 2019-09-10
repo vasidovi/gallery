@@ -36,4 +36,16 @@ public class QualityImageFileServiceImpl implements QualityImageFileService {
         }
     }
 
+    @Override
+    public ImageEntity deleteByImageId(Long id) {
+
+        Optional<ImageEntity> image = imageRepository.findById(id);
+        if (image.isPresent()) {
+            repository.delete( repository.findByImage(image.get()).get());
+            return image.get();
+        } else {
+            return null;
+        }
+    }
+
 }

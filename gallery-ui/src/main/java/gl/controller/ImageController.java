@@ -5,7 +5,6 @@ import gl.model.entity.ImageEntity;
 import gl.model.entity.QualityImageFileEntity;
 import gl.service.ImageService;
 import gl.service.QualityImageFileService;
-import gl.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
@@ -87,7 +86,8 @@ public class ImageController {
     @DeleteMapping("/image/{id}")
     public ResponseEntity<?>  deleteImage(@PathVariable Long id) {
         System.out.println("Delete about to start");
-        imageService.deleteById(id);
+        qualityImageFileService.deleteByImageId(id);
+//        imageService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 

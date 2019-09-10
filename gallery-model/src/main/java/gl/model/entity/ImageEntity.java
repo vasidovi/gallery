@@ -53,6 +53,11 @@ public class ImageEntity {
     private Set<CatalogEntity> catalogs = new HashSet<>();
 
     @OneToOne(mappedBy = "image")
+//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JoinTable(name = "image_file_image",
+//            joinColumns = @JoinColumn(name = "image_id"),
+//            inverseJoinColumns =   @JoinColumn(name = "image_file_id")
+//    )
     @Transient
     private QualityImageFileEntity qualityImageFile;
 

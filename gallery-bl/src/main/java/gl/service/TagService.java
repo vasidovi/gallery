@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface TagService {
-
     Optional<TagEntity> findByName(String name);
     Set<TagEntity> resolveInputToTags(Set<String> tags);
     Set<TagEntity> findTagEntitiesByNameIn(Set<String> name);
