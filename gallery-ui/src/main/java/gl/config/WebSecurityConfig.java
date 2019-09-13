@@ -18,7 +18,6 @@ import javax.annotation.Resource;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(securedEnabled = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -49,15 +48,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().
                 authorizeRequests()
-                // temporarily disabling security
-                // toDO to create login and registration
-                // toDo to review Angular + JWT
-                .antMatchers("/**", "/token/*", "/signup", "/images").permitAll()
+                .antMatchers( "/token/*", "/signup", "/images", "/image/**", "/images/find", "/catalogs").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.headers().frameOptions().disable();
+//        http.headers().frameOptions().disable();
         http
                 .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }

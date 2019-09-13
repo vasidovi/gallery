@@ -8,6 +8,7 @@ import gl.service.QualityImageFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -27,6 +28,7 @@ public class ImageController {
     public  List<ImageEntity>  getAllImages() {
         return imageService.getAllImages();
     }
+
 
     @GetMapping("/image/metadata/{id}")
     public  ImageEntity  getImageById(@PathVariable Long id) {
@@ -52,6 +54,7 @@ public class ImageController {
         return imageService.findImagesByCatalogIds(ids);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping( value = "/image/{id}")
     public ResponseEntity<?>  updateImage(
             @PathVariable Long id,
@@ -75,6 +78,7 @@ public class ImageController {
         return imageService.findByMultipleParameters(catalogIds, tags, search);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping(value = "/upload")
     public ImageEntity upload(
             @ModelAttribute ImageUploadEntity imageUploadEntity) {
@@ -82,13 +86,11 @@ public class ImageController {
         return image;
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/image/{id}")
     public ResponseEntity<?>  deleteImage(@PathVariable Long id) {
-        System.out.println("Delete about to start");
         qualityImageFileService.deleteByImageId(id);
 //        imageService.deleteById(id);
         return ResponseEntity.ok().build();
     }
-
 }
