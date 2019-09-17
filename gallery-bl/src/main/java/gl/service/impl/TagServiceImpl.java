@@ -42,4 +42,9 @@ public class TagServiceImpl implements TagService {
     public Set<TagEntity> findTagEntitiesByNameIn(Set<String> names) {
         return repository.findTagEntitiesByNameIn(names);
     }
+
+    @Override
+    public List<TagEntity> getAllTags() {
+        return repository.findAll();
+    }
 }

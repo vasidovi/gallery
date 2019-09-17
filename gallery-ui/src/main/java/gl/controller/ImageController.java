@@ -3,8 +3,10 @@ package gl.controller;
 import gl.model.*;
 import gl.model.entity.ImageEntity;
 import gl.model.entity.QualityImageFileEntity;
+import gl.model.entity.TagEntity;
 import gl.service.ImageService;
 import gl.service.QualityImageFileService;
+import gl.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
@@ -20,15 +22,20 @@ public class ImageController {
     private ImageService imageService;
 
     @Autowired
+    private TagService tagService;
+
+    @Autowired
     private QualityImageFileService qualityImageFileService;
 
-
-    //toDo to remake thumbnails generation
     @GetMapping("/images")
     public  List<ImageEntity>  getAllImages() {
         return imageService.getAllImages();
     }
 
+    @GetMapping("/tags")
+    public  List<TagEntity>  getAllTags() {
+        return tagService.getAllTags();
+    }
 
     @GetMapping("/image/metadata/{id}")
     public  ImageEntity  getImageById(@PathVariable Long id) {
@@ -90,7 +97,6 @@ public class ImageController {
     @DeleteMapping("/image/{id}")
     public ResponseEntity<?>  deleteImage(@PathVariable Long id) {
         qualityImageFileService.deleteByImageId(id);
-//        imageService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 }
