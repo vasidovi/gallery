@@ -22,6 +22,10 @@ public class TagServiceImpl implements TagService {
 
     public Set<TagEntity> resolveInputToTags(Set<String> tags) {
 
+        if (tags == null){
+            return new HashSet<>();
+        }
+
         Set<TagEntity> updatedTagSet = findTagEntitiesByNameIn(tags);
         Set<String> existingTagNames = updatedTagSet.stream().map( t -> t.getName()).collect(Collectors.toSet());
 

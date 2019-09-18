@@ -66,7 +66,7 @@ public class ImageController {
     public ResponseEntity<?>  updateImage(
             @PathVariable Long id,
             @ModelAttribute ImageUploadEntity imageUploadEntity) {
-        System.out.println(imageUploadEntity.toString());
+
         ImageEntity imageEntity = imageService.updateImage(imageUploadEntity, id);
 
         if (imageEntity == null) {
@@ -89,6 +89,7 @@ public class ImageController {
     @PostMapping(value = "/upload")
     public ImageEntity upload(
             @ModelAttribute ImageUploadEntity imageUploadEntity) {
+        
         ImageEntity image = imageService.uploadImage(imageUploadEntity);
         return image;
     }
