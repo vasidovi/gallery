@@ -1,6 +1,9 @@
 # Gallery
 Spring Boot based backend of gallery project
 
+## Demo
+https://gallery-view.herokuapp.com/
+
 ## User registration
 
 First to register user will be asigned roles 'USER' and 'ADMIN'. 
