@@ -1,0 +1,1 @@
+web: java -jar gallery-ui/target/*.jar
