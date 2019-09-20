@@ -45,20 +45,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return authorities;
 	}
 
-
-	@Override
-	public void delete(long id) {
-		userRepository.deleteById(id);
-	}
-
 	@Override
 	public UserEntity findOne(String username) {
 		return userRepository.findByUsername(username);
-	}
-
-	@Override
-	public UserEntity findById(Long id) {
-		return userRepository.findById(id).get();
 	}
 
 	@Override
