@@ -89,7 +89,7 @@ public class ImageController {
     @PostMapping(value = "/upload")
     public ImageEntity upload(
             @ModelAttribute ImageUploadEntity imageUploadEntity) {
-        
+
         ImageEntity image = imageService.uploadImage(imageUploadEntity);
         return image;
     }

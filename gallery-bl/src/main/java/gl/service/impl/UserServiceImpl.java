@@ -40,11 +40,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	private Set<SimpleGrantedAuthority> getAuthority(UserEntity user) {
 		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 		user.getRoles().forEach(role -> {
-			//authorities.add(new SimpleGrantedAuthority(role.getName()));
 			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
 		});
 		return authorities;
-		//return Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
 	}
 
 
@@ -64,7 +62,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 	}
 
 	@Override
-	//toDo to remake with userDTO
 	public UserEntity save(UserEntity user) {
 
 		UserEntity foundUser = findOne(user.getUsername());

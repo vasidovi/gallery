@@ -20,20 +20,18 @@ public class QualityImageFileServiceImpl implements QualityImageFileService {
 
     @Override
     public QualityImageFileEntity findByImageId(Long id) {
+        QualityImageFileEntity result = null;
 
         Optional<ImageEntity> image = imageRepository.findById(id);
 
         if (image.isPresent()) {
-
             Optional<QualityImageFileEntity> qualityImageFileEntityOptional = repository.findByImage(image.get());
             if (qualityImageFileEntityOptional.isPresent()) {
-                return qualityImageFileEntityOptional.get();
-            } else {
-                return null;
+                result = qualityImageFileEntityOptional.get();
             }
-        } else {
-            return null;
         }
+
+        return result;
     }
 
     @Override

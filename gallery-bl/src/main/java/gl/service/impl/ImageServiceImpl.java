@@ -234,66 +234,6 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
-
-    public List<ImageEntity> findByMultipleParametersOldVersion(List<Long> catalogIds,
-                                                                Set<String> tags,
-                                                                String search) {
-
-        Session session = entityManager.unwrap(Session.class);
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("select distinct image from ImageEntity image " +
-                "left outer join image.catalogs c " +
-                "left outer join image.tags t where ");
-
-        if (tags != null & tags.size() > 0) {
-            List<Long> tagIds = tagService.findTagEntitiesByNameIn(tags)
-                    .stream().map(tag -> tag.getId()).collect(Collectors.toList());
-            if (tagIds.size() > 0) {
-                sb.append("t.id in ( ");
-                for (Long id : tagIds) {
-                    sb.append(id + ", ");
-                }
-                sb.delete(sb.length() - 2, sb.length() - 1);
-                sb.append(") and ");
-            }
-        }
-
-        if (catalogIds != null && catalogIds.size() > 0) {
-            sb.append("c.id in ( ");
-            for (Long id : catalogIds) {
-                sb.append(id + ", ");
-            }
-            sb.delete(sb.length() - 2, sb.length() - 1);
-            sb.append(") and ");
-        }
-        String searchLowercase = search.trim().toLowerCase();
-
-        if (!searchLowercase.isEmpty()) {
-            sb.append("image.name like :name or image.description like :description and ");
-        }
-
-        // at least one condition was met
-        if (sb.toString().contains("and")) {
-
-            String queryReady = sb.substring(0, sb.length() - 5);
-            Query<ImageEntity> query = session.createQuery(queryReady);
-
-
-            if (!searchLowercase.isEmpty()) {
-                query.setParameter("name", "%" + searchLowercase + "%");
-                query.setParameter("description", "%" + searchLowercase + "%");
-            }
-
-            List<ImageEntity> images = query.getResultList();
-
-            return images;
-
-        } else {
-            return null;
-        }
-    }
-
     @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
