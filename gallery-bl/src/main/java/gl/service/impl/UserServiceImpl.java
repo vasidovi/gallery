@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 			if (userRepository.findAll().size() == 0 ) {
 				RoleEntity roleAdmin = roleService.findByRole("ADMIN");
 				roles.add(roleAdmin);
-			} 
+			}
 
 			newUser.setRoles(roles);
 			return userRepository.save(newUser);
