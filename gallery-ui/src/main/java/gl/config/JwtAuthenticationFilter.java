@@ -3,6 +3,7 @@ package gl.config;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,9 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.prefix}")
     private String tokenPrefix;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService,
-                                   TokenProvider jwtTokenUtil) {
+    @Autowired
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+    public void setTokenProvider(TokenProvider jwtTokenUtil) {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
