@@ -5,7 +5,6 @@ import gl.model.entity.UserEntity;
 import gl.repository.UserRepository;
 import gl.service.RoleService;
 import gl.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,14 +19,18 @@ import java.util.Set;
 @Service(value = "userService")
 public class UserServiceImpl implements UserDetailsService, UserService {
 
-	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
 	private RoleService roleService;
-
-	@Autowired
 	private BCryptPasswordEncoder bcryptEncoder;
+
+
+	public UserServiceImpl(UserRepository userRepository,
+						   RoleService roleService,
+						   BCryptPasswordEncoder bcryptEncoder) {
+		this.userRepository = userRepository;
+		this.roleService = roleService;
+		this.bcryptEncoder = bcryptEncoder;
+	}
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = userRepository.findByUsername(username);
@@ -39,9 +42,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
 	private Set<SimpleGrantedAuthority> getAuthority(UserEntity user) {
 		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-		user.getRoles().forEach(role -> {
-			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
-		});
+		user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole())));
 		return authorities;
 	}
 

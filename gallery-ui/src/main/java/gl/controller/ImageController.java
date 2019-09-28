@@ -7,25 +7,25 @@ import gl.model.entity.TagEntity;
 import gl.service.ImageService;
 import gl.service.QualityImageFileService;
 import gl.service.TagService;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
 
 @RestController
 public class ImageController {
 
-    @Autowired
     private ImageService imageService;
-
-    @Autowired
     private TagService tagService;
-
-    @Autowired
     private QualityImageFileService qualityImageFileService;
+
+    public ImageController(ImageService imageService,
+                           TagService tagService,
+                           QualityImageFileService qualityImageFileService) {
+        this.imageService = imageService;
+        this.tagService = tagService;
+        this.qualityImageFileService = qualityImageFileService;
+    }
 
     @GetMapping("/images")
     public  List<ImageEntity>  getAllImages() {

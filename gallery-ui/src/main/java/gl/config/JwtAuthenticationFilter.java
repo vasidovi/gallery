@@ -2,7 +2,7 @@ package gl.config;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,12 +17,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@NoArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
     private UserDetailsService userDetailsService;
-
-    @Autowired
     private TokenProvider jwtTokenUtil;
 
     @Value("${jwt.header}")
@@ -31,10 +29,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.prefix}")
     private String tokenPrefix;
 
-
+    public JwtAuthenticationFilter(UserDetailsService userDetailsService,
+                                   TokenProvider jwtTokenUtil) {
+        this.userDetailsService = userDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException, ServletException {
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String header = req.getHeader(headerString);
         String username = null;
         String authToken = null;
