@@ -24,6 +24,4 @@ public class TagEntity {
     @Transient
     private Set<ImageEntity> images = new HashSet<>();
 
-
-
 }

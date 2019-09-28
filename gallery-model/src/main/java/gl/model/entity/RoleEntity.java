@@ -14,11 +14,8 @@ public class RoleEntity {
     private Long id;
     private String role;
 
-
     @ManyToMany(mappedBy = "roles")
     @Transient
     private Set<UserEntity> users;
-
-
 
 }
