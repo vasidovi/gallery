@@ -1,23 +1,13 @@
 package gl.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@Data
+@AllArgsConstructor
 public class AuthToken {
-
+    
     private String token;
-
-    public AuthToken(){
-
-    }
-
-    public AuthToken(String token){
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
 }

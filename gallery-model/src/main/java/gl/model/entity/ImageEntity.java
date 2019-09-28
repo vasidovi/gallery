@@ -1,6 +1,7 @@
 package gl.model.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "image")
+@NoArgsConstructor
 public class ImageEntity {
 
     @Id
@@ -56,30 +58,8 @@ public class ImageEntity {
     @Transient
     private QualityImageFileEntity qualityImageFile;
 
-    public ImageEntity(){};
     public ImageEntity(byte[] bytes, String imageFormat){
         this.file = bytes;
         this.imageFormat = imageFormat;
     }
-
-    public void addTag(TagEntity tag) {
-        tags.add(tag);
-        tag.getImages().add(this);
-    }
-
-    public void removeTag(TagEntity tag) {
-        tags.remove(tag);
-        tag.getImages().remove(this);
-    }
-
-    public void addCatalog(CatalogEntity catalog) {
-        catalogs.add(catalog);
-        catalog.getImages().add(this);
-    }
-
-    public void removeCatalog(CatalogEntity catalog) {
-        catalogs.remove(catalog);
-        catalog.getImages().remove(this);
-    }
-
 }
