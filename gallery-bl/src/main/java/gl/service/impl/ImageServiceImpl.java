@@ -14,30 +14,37 @@ import gl.service.TagService;
 import gl.util.CreateImageThumbnail;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ImageServiceImpl implements ImageService {
 
-    @Autowired
-    EntityManager entityManager;
-    @Autowired
+    private EntityManager entityManager;
     private ImageRepository repository;
-    @Autowired
     private TagService tagService;
-    @Autowired
     private CatalogService catalogService;
-    @Autowired
     private CreateImageThumbnail createImageThumbnail;
-    @Autowired
     private QualityImageFileRepository qualityImageFileRepository;
+
+
+    public ImageServiceImpl( EntityManager entityManager,
+                             ImageRepository repository,
+                             TagService tagService,
+                             CatalogService catalogService,
+                             CreateImageThumbnail createImageThumbnail,
+                             QualityImageFileRepository qualityImageFileRepository) {
+        this.entityManager = entityManager;
+        this.repository = repository;
+        this.tagService = tagService;
+        this.catalogService = catalogService;
+        this.createImageThumbnail = createImageThumbnail;
+        this.qualityImageFileRepository = qualityImageFileRepository;
+    }
+
 
     public List<ImageEntity> getImagesByCatalogId(Long id) {
 

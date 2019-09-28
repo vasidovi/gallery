@@ -4,8 +4,6 @@ import gl.repository.TagRepository;
 
 import gl.model.entity.TagEntity;
 import gl.service.TagService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,9 +12,11 @@ import java.util.stream.Collectors;
 @Service
 public class TagServiceImpl implements TagService {
 
-    @Autowired
     private TagRepository repository;
 
+    public TagServiceImpl(TagRepository repository) {
+        this.repository = repository;
+    }
 
     public Optional<TagEntity> findByName(String name){ return repository.findByName(name); }
 

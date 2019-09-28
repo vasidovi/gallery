@@ -2,7 +2,6 @@ package gl.controller;
 
 import gl.model.entity.UserEntity;
 import gl.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,8 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class UserController {
 
-    @Autowired
     private UserService userService;
+
+    public  UserController(UserService userService){
+        this.userService = userService;
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> saveUser(@RequestBody UserEntity user) {

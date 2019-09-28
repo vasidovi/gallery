@@ -3,7 +3,6 @@ package gl.controller;
 import gl.config.TokenProvider;
 import gl.model.AuthToken;
 import gl.model.LoginUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,12 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/token")
 public class AuthenticationController {
 
-    @Autowired
     private AuthenticationManager authenticationManager;
-
-    @Autowired
     private TokenProvider jwtTokenUtil;
 
+    public AuthenticationController(AuthenticationManager authenticationManager,
+                                    TokenProvider jwtTokenUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
 
     @PostMapping("/generate-token")
     public ResponseEntity<?> signIn(@RequestBody LoginUser loginUser) throws AuthenticationException {

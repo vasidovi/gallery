@@ -3,7 +3,6 @@ package gl.service.impl;
 import gl.model.entity.CatalogEntity;
 import gl.repository.CatalogRepository;
 import gl.service.CatalogService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +12,11 @@ import java.util.Set;
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
-    @Autowired
-    CatalogRepository catalogRepository;
+    private CatalogRepository catalogRepository;
+
+    public CatalogServiceImpl(CatalogRepository catalogRepository) {
+        this.catalogRepository = catalogRepository;
+    }
 
     @Override
     public List<CatalogEntity> findAll() {
