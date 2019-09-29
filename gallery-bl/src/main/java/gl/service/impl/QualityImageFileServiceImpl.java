@@ -5,13 +5,13 @@ import gl.model.entity.QualityImageFileEntity;
 import gl.repository.ImageRepository;
 import gl.repository.QualityImageFileRepository;
 import gl.service.QualityImageFileService;
-import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-@Log
+@Log4j2
 public class QualityImageFileServiceImpl implements QualityImageFileService {
 
     private ImageRepository imageRepository;

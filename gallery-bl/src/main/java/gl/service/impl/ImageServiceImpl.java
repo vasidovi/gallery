@@ -11,17 +11,15 @@ import gl.service.ImageService;
 import gl.service.TagService;
 import gl.specification.ImageSpecification;
 import gl.util.CreateImageThumbnail;
-import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.*;
 
 @Service
-@Log
+@Log4j2
 public class ImageServiceImpl implements ImageService {
 
-    private EntityManager entityManager;
     private ImageRepository repository;
     private TagService tagService;
     private CatalogService catalogService;
@@ -30,14 +28,13 @@ public class ImageServiceImpl implements ImageService {
     private ImageSpecification imageSpecification;
 
 
-    public ImageServiceImpl( EntityManager entityManager,
+    public ImageServiceImpl(
                              ImageRepository repository,
                              TagService tagService,
                              CatalogService catalogService,
                              CreateImageThumbnail createImageThumbnail,
                              QualityImageFileRepository qualityImageFileRepository,
                              ImageSpecification imageSpecification) {
-        this.entityManager = entityManager;
         this.repository = repository;
         this.tagService = tagService;
         this.catalogService = catalogService;
@@ -82,7 +79,6 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public ImageEntity uploadImage(ImageUploadEntity imageUploadEntity) {
-
         try {
             ImageEntity image = new ImageEntity(
                     imageUploadEntity.getFile().getBytes(),
@@ -99,12 +95,10 @@ public class ImageServiceImpl implements ImageService {
             qualityImageFile.setFile(imageUploadEntity.getFile().getBytes());
             qualityImageFile.setImage(image);
             qualityImageFileRepository.save(qualityImageFile);
-
             return image;
 
         } catch (IOException e) {
-            log.info("failed to upload image");
-            e.printStackTrace();
+            log.error("failed to upload image", e);
             return null;
         }
     }
