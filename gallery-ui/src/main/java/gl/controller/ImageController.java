@@ -7,9 +7,15 @@ import gl.model.entity.TagEntity;
 import gl.service.ImageService;
 import gl.service.QualityImageFileService;
 import gl.service.TagService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -46,6 +52,15 @@ public class ImageController {
     public QualityImageFileEntity getQualityFile(@PathVariable Long id) {
         return qualityImageFileService.findByImageId(id);
     }
+
+    @GetMapping("/imageSrc/{id}")
+    public ResponseEntity<byte[]> getQualityFileSrc(@PathVariable Long id) {
+        QualityImageFileEntity file = qualityImageFileService.findByImageId(id);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            return new ResponseEntity<>(file.getFile(), headers, HttpStatus.OK);
+    }
+    
 
     //path no longer used up for removal
     @GetMapping("/images/catalog/{id}")
