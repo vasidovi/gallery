@@ -6,7 +6,6 @@ import gl.service.CatalogService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -21,16 +20,6 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public List<CatalogEntity> findAll() {
         return catalogRepository.findAll();
-    }
-
-    @Override
-    public CatalogEntity findById(Long id) {
-        Optional<CatalogEntity> catalogDAOOptional = catalogRepository.findById(id);
-        if (catalogDAOOptional.isPresent()) {
-            return catalogDAOOptional.get();
-        } else {
-            return null;
-        }
     }
 
     @Override
