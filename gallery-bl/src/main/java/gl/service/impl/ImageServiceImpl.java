@@ -2,19 +2,17 @@ package gl.service.impl;
 
 
 import gl.model.*;
-import gl.model.entity.CatalogEntity;
 import gl.model.entity.ImageEntity;
 import gl.model.entity.QualityImageFileEntity;
-import gl.model.entity.TagEntity;
 import gl.repository.ImageRepository;
 import gl.repository.QualityImageFileRepository;
 import gl.service.CatalogService;
 import gl.service.ImageService;
 import gl.service.TagService;
+import gl.specification.ImageSpecification;
 import gl.util.CreateImageThumbnail;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
 import java.io.IOException;
 import java.util.*;
 
@@ -27,6 +25,7 @@ public class ImageServiceImpl implements ImageService {
     private CatalogService catalogService;
     private CreateImageThumbnail createImageThumbnail;
     private QualityImageFileRepository qualityImageFileRepository;
+    private ImageSpecification imageSpecification;
 
 
     public ImageServiceImpl( EntityManager entityManager,
@@ -34,13 +33,15 @@ public class ImageServiceImpl implements ImageService {
                              TagService tagService,
                              CatalogService catalogService,
                              CreateImageThumbnail createImageThumbnail,
-                             QualityImageFileRepository qualityImageFileRepository) {
+                             QualityImageFileRepository qualityImageFileRepository,
+                             ImageSpecification imageSpecification) {
         this.entityManager = entityManager;
         this.repository = repository;
         this.tagService = tagService;
         this.catalogService = catalogService;
         this.createImageThumbnail = createImageThumbnail;
         this.qualityImageFileRepository = qualityImageFileRepository;
+        this.imageSpecification = imageSpecification;
     }
 
     public List<ImageEntity> getAllImages() {
@@ -108,78 +109,7 @@ public class ImageServiceImpl implements ImageService {
                                                       Set<String> tagSet,
                                                       String search) {
 
-
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ImageEntity> criteriaQuery = criteriaBuilder.createQuery(ImageEntity.class);
-        Root<ImageEntity> image = criteriaQuery.from(ImageEntity.class);
-
-        Join<ImageEntity, CatalogEntity> catalogs = image.join("catalogs", JoinType.LEFT);
-        Join<ImageEntity, TagEntity> tags = image.join("tags", JoinType.LEFT);
-
-        criteriaQuery.select(image).distinct(true);
-
-        Predicate finalPredicate = null;
-        Predicate catalogPredicate = null;
-        Predicate tagsPredicate = null;
-        Predicate searchPredicate = null;
-
-        if (catalogIds.size() > 0) {
-            catalogPredicate = criteriaBuilder.equal(catalogs.get("id"), catalogIds.get(0));
-            if (catalogIds.size() > 1) {
-                for (int i = 1; i < catalogIds.size(); i++) {
-                    Predicate currentPredicate = criteriaBuilder.equal(catalogs.get("id"), catalogIds.get(i));
-                    catalogPredicate = criteriaBuilder.or(catalogPredicate, currentPredicate);
-                }
-            }
-        }
-
-        if (tagSet.size() > 0) {
-            List<String> tagsList = new ArrayList<>(tagSet);
-            tagsPredicate = criteriaBuilder.equal(tags.get("name"), tagsList.get(0));
-            if (tagsList.size() > 1) {
-                for (int i = 1; i < tagsList.size(); i++) {
-                    Predicate currentPredicate = criteriaBuilder.equal(tags.get("name"), tagsList.get(i));
-                    tagsPredicate = criteriaBuilder.or(tagsPredicate, currentPredicate);
-                }
-            }
-        }
-
-        String searchLowercase = search.trim().toLowerCase();
-
-        if (!searchLowercase.isEmpty()) {
-            Predicate namePredicate = criteriaBuilder.like(image.get("name"), "%" + searchLowercase + "%");
-            Predicate descriptionPredicate = criteriaBuilder.like(image.get("description"), "%" + searchLowercase + "%");
-            searchPredicate = criteriaBuilder.or(namePredicate, descriptionPredicate);
-        }
-
-        if (catalogPredicate != null) {
-            finalPredicate = catalogPredicate;
-        }
-
-        if (tagsPredicate != null) {
-
-            if (finalPredicate != null) {
-                finalPredicate = criteriaBuilder.and(finalPredicate, tagsPredicate);
-            } else {
-                finalPredicate = tagsPredicate;
-            }
-        }
-
-        if (searchPredicate != null) {
-
-            if (finalPredicate != null) {
-                finalPredicate = criteriaBuilder.and(finalPredicate, searchPredicate);
-            } else {
-                finalPredicate = searchPredicate;
-            }
-        }
-
-        if (finalPredicate != null) {
-            criteriaQuery.where(finalPredicate);
-            return entityManager.createQuery(criteriaQuery).getResultList();
-        } else {
-            return null;
-        }
+        return repository.findAll(imageSpecification.getImagesByFilterParameters(search, tagSet, catalogIds));
     }
 
     @Override
