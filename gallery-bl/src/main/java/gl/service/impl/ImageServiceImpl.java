@@ -12,8 +12,6 @@ import gl.service.CatalogService;
 import gl.service.ImageService;
 import gl.service.TagService;
 import gl.util.CreateImageThumbnail;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
@@ -45,19 +43,9 @@ public class ImageServiceImpl implements ImageService {
         this.qualityImageFileRepository = qualityImageFileRepository;
     }
 
-
-    public List<ImageEntity> getImagesByCatalogId(Long id) {
-
-        if (catalogService.findById(id) != null) {
-            return repository.findByCatalogId(id);
-        }
-        return null;
-    }
-
     public List<ImageEntity> getAllImages() {
         return repository.findAll();
     }
-
 
     public ImageEntity updateImage(ImageUploadEntity imageUploadEntity, Long id) {
 
@@ -65,14 +53,14 @@ public class ImageServiceImpl implements ImageService {
 
         if (imageDAOOptional.isPresent()) {
             ImageEntity image = imageDAOOptional.get();
-            image = _updateImageMetadata(imageUploadEntity, image);
+             _updateImageMetadata(imageUploadEntity, image);
             repository.save(image);
             return image;
         }
         return null;
     }
 
-    private ImageEntity _updateImageMetadata(ImageUploadEntity imageUploadEntity, ImageEntity imageEntity) {
+    private void _updateImageMetadata(ImageUploadEntity imageUploadEntity, ImageEntity imageEntity) {
 
         String name = imageUploadEntity.getName().trim().toLowerCase();
         imageEntity.setName(name);
@@ -86,7 +74,6 @@ public class ImageServiceImpl implements ImageService {
         Set<String> tags = imageUploadEntity.getTags();
         imageEntity.setTags(tagService.resolveInputToTags(tags));
 
-        return imageEntity;
     }
 
     @Override
@@ -100,7 +87,7 @@ public class ImageServiceImpl implements ImageService {
             image.setDate(new Date());
             image.setCreationDateTime(new Date());
 
-            image = _updateImageMetadata(imageUploadEntity, image);
+            _updateImageMetadata(imageUploadEntity, image);
 
             image.setFile(createImageThumbnail.createThumbnail(image));
 
@@ -117,47 +104,6 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
-    public List<ImageEntity> findImagesByCatalogIds(List<Long> ids) {
-
-        Session session = entityManager.unwrap(Session.class);
-        StringBuilder sb = new StringBuilder();
-        sb.append("select distinct img from ImageEntity " +
-                "as img left outer join img.catalogs as cats where ");
-        for (Long x : ids) {
-            sb.append("cats.id=:category" + x + " or ");
-
-        }
-
-        String queryReady = sb.substring(0, sb.length() - 3);
-        Query<ImageEntity> query = session.createQuery(queryReady);
-        for (Long x : ids) {
-            query.setParameter("category" + x, x);
-        }
-        List<ImageEntity> images = query.getResultList();
-        return images;
-    }
-
-    /*  Filter in native
-
-        select distinct image.* from image
-        left outer join
-        image_catalog as img_cat on img_cat.image_id  = image.id
-        left outer join
-        image_tag as img_tag on img_tag.image_id = image.id
-        left outer join
-        tag on tag.id = img_tag.tag_id
-
-        !!! only if catalog id list length > 0
-        where catalog.id in ( ..,.. )
-        and
-        !!! only  if tag.name list length > 0
-        tag.name in (..,..)
-        and
-        image.name like '% image.name %'
-        and
-        image.description like '% image.description %'
-
-    */
     public List<ImageEntity> findByMultipleParameters(List<Long> catalogIds,
                                                       Set<String> tagSet,
                                                       String search) {
@@ -229,13 +175,8 @@ public class ImageServiceImpl implements ImageService {
         }
 
         if (finalPredicate != null) {
-
             criteriaQuery.where(finalPredicate);
-
-            List<ImageEntity> images = entityManager.createQuery(criteriaQuery).getResultList();
-
-            return images;
-
+            return entityManager.createQuery(criteriaQuery).getResultList();
         } else {
             return null;
         }
@@ -250,12 +191,6 @@ public class ImageServiceImpl implements ImageService {
     public ImageEntity findByImageId(Long id) {
 
         Optional<ImageEntity> image = repository.findById(id);
-
-        if (image.isPresent()) {
-            return image.get();
-        } else {
-            return null;
-        }
+        return image.orElse(null);
     }
-
 }

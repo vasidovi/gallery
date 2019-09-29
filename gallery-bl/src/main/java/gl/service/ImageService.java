@@ -10,10 +10,7 @@ public interface ImageService {
 
     List<ImageEntity> getAllImages();
 
-    List<ImageEntity> getImagesByCatalogId(Long id);
-    List<ImageEntity> findImagesByCatalogIds(List<Long> ids);
     ImageEntity findByImageId(Long id);
-
     ImageEntity uploadImage(ImageUploadEntity imageUploadEntity);
     ImageEntity updateImage(ImageUploadEntity imageUploadEntity, Long id);
 
