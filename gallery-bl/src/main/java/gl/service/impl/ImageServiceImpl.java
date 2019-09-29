@@ -11,12 +11,14 @@ import gl.service.ImageService;
 import gl.service.TagService;
 import gl.specification.ImageSpecification;
 import gl.util.CreateImageThumbnail;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.*;
 
 @Service
+@Log
 public class ImageServiceImpl implements ImageService {
 
     private EntityManager entityManager;
@@ -58,6 +60,7 @@ public class ImageServiceImpl implements ImageService {
             repository.save(image);
             return image;
         }
+        log.info("No image with " + id + " found update failed");
         return null;
     }
 
@@ -100,6 +103,7 @@ public class ImageServiceImpl implements ImageService {
             return image;
 
         } catch (IOException e) {
+            log.info("failed to upload image");
             e.printStackTrace();
             return null;
         }

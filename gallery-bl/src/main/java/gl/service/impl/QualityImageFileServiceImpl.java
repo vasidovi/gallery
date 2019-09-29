@@ -5,11 +5,13 @@ import gl.model.entity.QualityImageFileEntity;
 import gl.repository.ImageRepository;
 import gl.repository.QualityImageFileRepository;
 import gl.service.QualityImageFileService;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@Log
 public class QualityImageFileServiceImpl implements QualityImageFileService {
 
     private ImageRepository imageRepository;
@@ -33,7 +35,7 @@ public class QualityImageFileServiceImpl implements QualityImageFileService {
                 result = qualityImageFileEntityOptional.get();
             }
         }
-
+        log.info("Failed to find quality image file, because mo image with id " + id  + " found");
         return result;
     }
 
@@ -45,6 +47,7 @@ public class QualityImageFileServiceImpl implements QualityImageFileService {
             repository.delete(repository.findByImage(image.get()).get());
             return image.get();
         } else {
+            log.info("Failed to delete image, because no image with id " + id  + " found");
             return null;
         }
     }
