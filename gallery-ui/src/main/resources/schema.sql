@@ -50,8 +50,7 @@ CREATE TABLE IF NOT EXISTS catalog
 CREATE TABLE IF NOT EXISTS user
 (id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(256), password VARCHAR(256),  PRIMARY KEY (id));
 
-drop table if exists user_role;
-CREATE TABLE user_role (
+CREATE TABLE IF NOT EXISTS user_role (
                            user_id bigint NOT NULL,
                            role_id bigint NOT NULL,
                            CONSTRAINT FK859n2jvi8ivhui0rl0esws6o FOREIGN KEY (user_id) REFERENCES user (id),
