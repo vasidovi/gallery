@@ -17,7 +17,7 @@ import java.util.Set;
 
 
 @Service(value = "userService")
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl implements UserService {
 
 	private UserRepository userRepository;
 	private RoleService roleService;
@@ -30,20 +30,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		this.userRepository = userRepository;
 		this.roleService = roleService;
 		this.bcryptEncoder = bcryptEncoder;
-	}
-
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserEntity user = userRepository.findByUsername(username);
-		if (user == null) {
-			throw new UsernameNotFoundException("Invalid username or password.");
-		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthority(user));
-	}
-
-	private Set<SimpleGrantedAuthority> getAuthority(UserEntity user) {
-		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-		user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole())));
-		return authorities;
 	}
 
 	@Override
