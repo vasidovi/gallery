@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebMvc
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebConfig {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -16,7 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedMethods("POST", "GET", "PUT", "DELETE")
+                        .allowedMethods("POST", "GET", "PUT", "DELETE", "OPTIONS")
                         .allowedOrigins("http://localhost:4200", "https://gallery-view.herokuapp.com");
             }
         };

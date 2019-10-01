@@ -1,6 +1,5 @@
 package gl.controller;
 
-import gl.config.TokenProvider;
 import gl.model.AuthToken;
 import gl.model.LoginUser;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private AuthenticationManager authenticationManager;
-    private TokenProvider jwtTokenUtil;
 
-    public AuthenticationController(AuthenticationManager authenticationManager,
-                                    TokenProvider jwtTokenUtil) {
+    public AuthenticationController(AuthenticationManager authenticationManager
+//                                    TokenProvider jwtTokenUtil
+    ) {
         this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil = jwtTokenUtil;
+//        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @PostMapping("/generate-token")
@@ -34,7 +33,8 @@ public class AuthenticationController {
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = jwtTokenUtil.generateToken(authentication);
+        final String token = null;
+//                jwtTokenUtil.generateToken(authentication);
         return ResponseEntity.ok(new AuthToken(token));
     }
 }
