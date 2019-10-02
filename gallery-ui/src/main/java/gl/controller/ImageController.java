@@ -45,12 +45,7 @@ public class ImageController {
     public  ImageEntity  getImageById(@PathVariable Long id) {
         return imageService.findByImageId(id);
     }
-
-    @GetMapping("/image/{id}")
-    public QualityImageFileEntity getQualityFile(@PathVariable Long id) {
-        return qualityImageFileService.findByImageId(id);
-    }
-
+    
     @GetMapping("/imageSrc/{id}")
     public ResponseEntity<byte[]> getQualityFileSrc(@PathVariable Long id) {
         QualityImageFileEntity file = qualityImageFileService.findByImageId(id);
@@ -88,7 +83,6 @@ public class ImageController {
     @PostMapping(value = "/upload")
     public ImageEntity upload(
             @ModelAttribute ImageUploadEntity imageUploadEntity) {
-
        return imageService.uploadImage(imageUploadEntity);
     }
 
