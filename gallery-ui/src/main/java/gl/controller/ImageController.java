@@ -80,7 +80,7 @@ public class ImageController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PostMapping(value = "/upload")
+    @RequestMapping(value = "/upload", method = { RequestMethod.GET, RequestMethod.POST })
     public ImageEntity upload(
             @ModelAttribute ImageUploadEntity imageUploadEntity) {
        return imageService.uploadImage(imageUploadEntity);
