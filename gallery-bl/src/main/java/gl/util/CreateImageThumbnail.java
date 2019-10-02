@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.UUID;
 
 
 @Service
@@ -25,8 +26,9 @@ public class CreateImageThumbnail {
     }
 
     private File createFile(ImageEntity image) throws IllegalStateException, IOException {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File file = new File(classLoader.getResource(".").getFile() + "/images/thumbnails/" +  image.getId() +".jpg");
+        UUID uuid = UUID.randomUUID();
+        File file = new File(  "./" + uuid +".jpg");
+        System.out.println(file.getAbsolutePath());
         if(!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
