@@ -75,7 +75,6 @@ public class ImageController {
             @RequestParam Set<String> tags,
             @RequestParam String search
     ) {
-        System.out.println("we go here");
         return imageService.findByMultipleParameters(catalogIds, tags, search);
     }
 

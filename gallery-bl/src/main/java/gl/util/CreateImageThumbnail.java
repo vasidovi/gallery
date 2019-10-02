@@ -28,7 +28,6 @@ public class CreateImageThumbnail {
     private File createFile(ImageEntity image) throws IllegalStateException, IOException {
         UUID uuid = UUID.randomUUID();
         File file = new File(  "./" + uuid +".jpg");
-        System.out.println(file.getAbsolutePath());
         if(!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
